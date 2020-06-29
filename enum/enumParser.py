@@ -29,9 +29,9 @@ int main(void){
 """
 
 enums = []
-yousos = []
+values = []
 
-class Youso:
+class Values:
     def __init__(self, name, value=''):
         self.name=name
         self.value=value
@@ -39,61 +39,61 @@ class Youso:
 class Enum:
     def __init__(self, name):
         self.name=name
-        self.youso = []
+        self.values = []
     def __str__(self):
         ret = self.name + '->'
-        for y in self.youso:
+        for y in self.values:
             ret = ret + '\n' + y.name + ':' + str(y.value)
         return ret
 
-def Analyze(enumtext, yousolist):
+def Analyze(enumtext, valuelist):
     # TODO
     # 煩雑、4桁が限界で行っている。おそらく再起を使って二メモリずつ進めればいくらでも可能
     # 現在四則演算は+-のみ、*/は非対応
     prev = 0
     enumins = Enum(enumtext)
-    for youso in yousolist:
-        yousoins = Youso(youso[0])
-        if youso[1] == '':
+    for value in valuelist:
+        valueins = Values(value[0])
+        if value[1] == '':
             # 一つ目が空なら此処で終わり
-            yousoins.value = prev + 1
-            prev = yousoins.value
-        elif youso[1].isdecimal():
+            valueins.value = prev + 1
+            prev = valueins.value
+        elif value[1].isdecimal():
             # 一つ目が数値 さらに先まで見る
-            yousoins.value = int(youso[1])
-            if youso[2] == '+':
-                if youso[3].isdecimal():
-                    yousoins.value += int(youso[3])
+            valueins.value = int(value[1])
+            if value[2] == '+':
+                if value[3].isdecimal():
+                    valueins.value += int(value[3])
                 else:
-                    found=next((t for t in yousos if t.name==youso[3]) ,None)
-                    yousoins.value += found.value
-            if youso[2] == '-':
-                if youso[3].isdecimal():
-                    yousoins.value -= int(youso[3])
+                    found=next((t for t in values if t.name==value[3]) ,None)
+                    valueins.value += found.value
+            if value[2] == '-':
+                if value[3].isdecimal():
+                    valueins.value -= int(value[3])
                 else:
-                    found=next((t for t in yousos if t.name==youso[3]) ,None)
-                    yousoins.value -= found.value
+                    found=next((t for t in values if t.name==value[3]) ,None)
+                    valueins.value -= found.value
         else:
             # 一つ目が文字列
-            # yousosから検索
-            found=next((t for t in yousos if t.name==youso[1]) ,None)
+            # valuesから検索
+            found=next((t for t in values if t.name==value[1]) ,None)
             if found:
-                yousoins.value = found.value
-            if youso[2] == '+':
-                if youso[3].isdecimal():
-                    yousoins.value += int(youso[3])
+                valueins.value = found.value
+            if value[2] == '+':
+                if value[3].isdecimal():
+                    valueins.value += int(value[3])
                 else:
-                    found=next((t for t in yousos if t.name==youso[3]) ,None)
-                    yousoins.value += found.value
-            if youso[2] == '-':
-                if youso[3].isdecimal():
-                    yousoins.value -= int(youso[3])
+                    found=next((t for t in values if t.name==value[3]) ,None)
+                    valueins.value += found.value
+            if value[2] == '-':
+                if value[3].isdecimal():
+                    valueins.value -= int(value[3])
                 else:
-                    found=next((t for t in yousos if t.name==youso[3]) ,None)
-                    yousoins.value -= found.value
-        prev = yousoins.value
-        yousos.append(yousoins)
-        enumins.youso.append(yousoins)
+                    found=next((t for t in values if t.name==value[3]) ,None)
+                    valueins.value -= found.value
+        prev = valueins.value
+        values.append(valueins)
+        enumins.values.append(valueins)
 
     print(str(enumins))
     return enumins
@@ -109,11 +109,9 @@ def EnumParser(textstr):
     for enumtext in re.findall(r'enum\s+(.*?){(.*?)};', textline):
         #print('Enum:' + enumtext[0])
 
-        youso = enumtext[1].replace(' ','')
-        #print('Youso')
-        yousolist = [yousolist for yousolist in re.findall(r'(\w+)=?(\w*)([\+|\-|\*|\/])?(\w+)?,', youso)]
-        #print(yousolist)
-        Analyze(enumtext[0], yousolist)
+        value = enumtext[1].replace(' ','')
+        valuelist = [valuelist for valuelist in re.findall(r'(\w+)=?(\w*)([\+|\-|\*|\/])?(\w+)?,', value)]
+        Analyze(enumtext[0], valuelist)
 
         print()
 

@@ -11,7 +11,7 @@ enum ENUM_EXE_01_F{
     EXE_YOUSO_01_07_F = EXE_YOUSO_01_03_F, /* Comment In */ // CommentIn
     EXE_YOUSO_01_08_F = EXE_YOUSO_01_07_F + 1, /* Comment In */ // CommentIn
     EXE_YOUSO_01_08_F = EXE_YOUSO_01_07_F - 10, /* Comment In */ /* CommentIn
-*/    EXE_YOUSO_01_09_F = EXE_YOUSO_01_07_F - EXE_YOUSO_01_08, /* Comment In */ // CommentIn
+*/    EXE_YOUSO_01_09_F = EXE_YOUSO_01_07_F - EXE_YOUSO_01_08_F, /* Comment In */ // CommentIn
 };
 enum ENUM_EXE_02_F{
     EXE_YOUSO_02_01_F = EXE_YOUSO_01_08_F,};
