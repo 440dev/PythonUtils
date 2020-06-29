@@ -1,6 +1,7 @@
 import re
 
 sample = """
+#include <iostream>
 // Enum Example1
 enum ENUM_EXE_01{
     EXE_YOUSO_01_01 = 0,
@@ -17,7 +18,6 @@ enum ENUM_EXE_01{
 enum ENUM_EXE_02{
     EXE_YOUSO_02_01 = EXE_YOUSO_01_08,};
         enum ENUM_EXE_03{EXE_YOUSO_03_01=0,EXE_YOUSO_03_02,};
-#include <iostream>
 void call() {
     std::cout << "Helloworld" << std::endl;
     printf("Helloworld");
@@ -45,4 +45,12 @@ def EnumParser(textstr):
         print()
 
 if __name__ == "__main__":
-    EnumParser(sample)
+    import sys
+    args = sys.argv
+
+    if len(args) > 1:
+        # Open File
+        with open(args[1],'r',encoding='utf-8') as f:
+            EnumParser(f.read())
+    else:
+        EnumParser(sample)
