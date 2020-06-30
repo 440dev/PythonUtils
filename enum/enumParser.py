@@ -107,7 +107,7 @@ def EnumParser(textstr):
     textline = ''.join([text for text in textlist if text !=''])
     ret = []
 
-    for enumtext in re.findall(r'enum\s+(.*?){(.*?)};', textline):
+    for enumtext in re.findall(r'enum\s+(\w*?)\s*{(.*?)};', textline):
         #print('Enum:' + enumtext[0])
 
         value = enumtext[1].replace(' ','')
