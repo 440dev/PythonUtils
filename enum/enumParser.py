@@ -5,7 +5,7 @@ sample = """
 // Enum Example1
 enum ENUM_EXE_01{
     EXE_YOUSO_01_01 = 0,
-    EXE_YOUSO_01_02 = 5,
+    EXE_YOUSO_01_02 = ENUM_EXE_01::EXE_YOUSO_01_01,
     EXE_YOUSO_01_03 = (1+3),
     EXE_YOUSO_01_04, /* Comment In */
     EXE_YOUSO_01_05, // Comment In
@@ -13,7 +13,7 @@ enum ENUM_EXE_01{
     EXE_YOUSO_01_07 = 3, /* Comment In */ // CommentIn
     EXE_YOUSO_01_08 = EXE_YOUSO_01_07 + 1, /* Comment In */ // CommentIn
     EXE_YOUSO_01_09 = EXE_YOUSO_01_07 - 10, /* Comment In */ /* CommentIn
-*/    EXE_YOUSO_01_10 = EXE_YOUSO_01_07 + EXE_YOUSO_01_08, /* Comment In */ // CommentIn
+*/    EXE_YOUSO_01_10 = EXE_YOUSO_01_07 + ENUM_EXE_01::EXE_YOUSO_01_08, /* Comment In */ // CommentIn
 };
 void testfunction(enum ENUM_ERROR_CHECK e);
 enum ENUM_EXE_02{
@@ -83,55 +83,55 @@ def Analyze(enumtext, valuelist):
                 if value[3].isdecimal():
                     valueins.value += int(value[3])
                 else:
-                    found=next((t for t in values if t.name==value[3]) ,None)
+                    found=next((t for t in values if t.name==re.sub(r'\w+::',"",value[3])) ,None)
                     valueins.value += found.value
             if value[2] == '-':
                 if value[3].isdecimal():
                     valueins.value -= int(value[3])
                 else:
-                    found=next((t for t in values if t.name==value[3]) ,None)
+                    found=next((t for t in values if t.name==re.sub(r'\w+::',"",value[3])) ,None)
                     valueins.value -= found.value
             if value[2] == '*':
                 if value[3].isdecimal():
                     valueins.value *= int(value[3])
                 else:
-                    found=next((t for t in values if t.name==value[3]) ,None)
+                    found=next((t for t in values if t.name==re.sub(r'\w+::',"",value[3])) ,None)
                     valueins.value *= found.value
             if value[2] == '/':
                 if value[3].isdecimal():
                     valueins.value /= int(value[3])
                 else:
-                    found=next((t for t in values if t.name==value[3]) ,None)
+                    found=next((t for t in values if t.name==re.sub(r'\w+::',"",value[3])) ,None)
                     valueins.value /= found.value
         else:
             # 一つ目が文字列
             # valuesから検索
-            found=next((t for t in values if t.name==value[1]) ,None)
+            found=next((t for t in values if t.name==re.sub(r'\w+::',"",value[1])) ,None)
             if found:
                 valueins.value = found.value
             if value[2] == '+':
                 if value[3].isdecimal():
                     valueins.value += int(value[3])
                 else:
-                    found=next((t for t in values if t.name==value[3]) ,None)
+                    found=next((t for t in values if t.name==re.sub(r'\w+::',"",value[3])) ,None)
                     valueins.value += found.value
             if value[2] == '-':
                 if value[3].isdecimal():
                     valueins.value -= int(value[3])
                 else:
-                    found=next((t for t in values if t.name==value[3]) ,None)
+                    found=next((t for t in values if t.name==re.sub(r'\w+::',"",value[3])) ,None)
                     valueins.value -= found.value
             if value[2] == '*':
                 if value[3].isdecimal():
                     valueins.value *= int(value[3])
                 else:
-                    found=next((t for t in values if t.name==value[3]) ,None)
+                    found=next((t for t in values if t.name==re.sub(r'\w+::',"",value[3])) ,None)
                     valueins.value *= found.value
             if value[2] == '/':
                 if value[3].isdecimal():
                     valueins.value /= int(value[3])
                 else:
-                    found=next((t for t in values if t.name==value[3]) ,None)
+                    found=next((t for t in values if t.name==re.sub(r'\w+::',"",value[3])) ,None)
                     valueins.value /= found.value
         prev = valueins.value
         values.append(valueins)
@@ -153,7 +153,7 @@ def EnumParser(textstr):
         #print('Enum:' + enumtext[0])
 
         value = enumtext[1].replace(' ','')
-        valuelist = [valuelist for valuelist in re.findall(r'(\w+)=?\(?(\w*)([\+|\-|\*|\/])?(\w+)?\)?,?', value)]
+        valuelist = [valuelist for valuelist in re.findall(r'(\w+)=?\(?(?:\w+::)?(\w*)([\+|\-|\*|\/])?(?:\w+::)?(\w+)?\)?,?', value)]
         ret.append(Analyze(enumtext[0], valuelist))
 
     return ret
