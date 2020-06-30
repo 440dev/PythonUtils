@@ -22,12 +22,16 @@ enum ENUM_EXE_02{
 
 enum class ENUM_EXE_04 : uint32_t{
     ENUM_EXE_04_01,
+#if defined(XXXX) // comment
     ENUM_EXE_04_02 =5,
+#endif /* Comment */
     ENUM_EXE_04_03=ENUM_EXE_04_01+1
 };
 enum class ENUM_EXE_05:uint32_t {
     ENUM_EXE_05_01,
+ #ifdef XXXX
     ENUM_EXE_05_02 =5,
+ #endif
     ENUM_EXE_05_03=ENUM_EXE_05_01+1,
 };
 
@@ -116,7 +120,7 @@ def EnumParser(textstr):
 
     # 余分なものを削ぎ落とす
     # 空白 /* */ or // or /* or */の周りで実体のコードに影響を与えない箇所を消す
-    textlist = [re.sub(r'(\/\*.+?\*\/|\/\/.+|\/\*.+|^(\/\*)\*\/)', '', text) for text in textlist]
+    textlist = [re.sub(r'(\/\*.+?\*\/|\/\/.+|\#ifdef.+|\#endif.+|\#if\s+defined.+|\/\*.+|^(\/\*)\*\/)', '', text) for text in textlist]
     textline = ''.join([text for text in textlist if text !=''])
     ret = []
 
