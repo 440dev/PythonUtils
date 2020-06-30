@@ -95,7 +95,7 @@ def Analyze(enumtext, valuelist):
         values.append(valueins)
         enumins.values.append(valueins)
 
-    print(str(enumins))
+    #print(str(enumins))
     return enumins
 
 def EnumParser(textstr):
@@ -105,15 +105,16 @@ def EnumParser(textstr):
     # 空白 /* */ or // or /* or */の周りで実体のコードに影響を与えない箇所を消す
     textlist = [re.sub(r'(\/\*.+?\*\/|\/\/.+|\/\*.+|^(\/\*)\*\/)', '', text) for text in textlist]
     textline = ''.join([text for text in textlist if text !=''])
+    ret = []
 
     for enumtext in re.findall(r'enum\s+(.*?){(.*?)};', textline):
         #print('Enum:' + enumtext[0])
 
         value = enumtext[1].replace(' ','')
         valuelist = [valuelist for valuelist in re.findall(r'(\w+)=?(\w*)([\+|\-|\*|\/])?(\w+)?,', value)]
-        Analyze(enumtext[0], valuelist)
+        ret.append(Analyze(enumtext[0], valuelist))
 
-        print()
+    return ret
 
 if __name__ == "__main__":
     import sys
@@ -122,6 +123,15 @@ if __name__ == "__main__":
     if len(args) > 1:
         # Open File
         with open(args[1],'r',encoding='utf-8') as f:
-            EnumParser(f.read())
+            res = EnumParser(f.read())
     else:
-        EnumParser(sample)
+        res = EnumParser(sample)
+    
+    #display
+    for r in res:
+        print(str(r) + '\n')
+        # r.name <- Enum name
+        # r.values <- Enumの変数が入ったlist
+        # len(r.values) <- 変数の個数
+        # r.values[0].name <- 変数の名前
+        # r.values[0].value <- 変数の中身
