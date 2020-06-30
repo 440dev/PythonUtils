@@ -15,9 +15,22 @@ enum ENUM_EXE_01{
     EXE_YOUSO_01_09 = EXE_YOUSO_01_07 - 10, /* Comment In */ /* CommentIn
 */    EXE_YOUSO_01_10 = EXE_YOUSO_01_07 + EXE_YOUSO_01_08, /* Comment In */ // CommentIn
 };
+void testfunction(enum ENUM_ERROR_CHECK e);
 enum ENUM_EXE_02{
     EXE_YOUSO_02_01 = EXE_YOUSO_01_08,};
         enum ENUM_EXE_03{EXE_YOUSO_03_01=0,EXE_YOUSO_03_02,};
+
+enum class ENUM_EXE_04 : uint32_t{
+    ENUM_EXE_04_01,
+    ENUM_EXE_04_02 =5,
+    ENUM_EXE_04_03=ENUM_EXE_04_01+1
+};
+enum class ENUM_EXE_05:uint32_t {
+    ENUM_EXE_05_01,
+    ENUM_EXE_05_02 =5,
+    ENUM_EXE_05_03=ENUM_EXE_05_01+1,
+};
+
 void call() {
     std::cout << "Helloworld" << std::endl;
     printf("Helloworld");
@@ -107,7 +120,7 @@ def EnumParser(textstr):
     textline = ''.join([text for text in textlist if text !=''])
     ret = []
 
-    for enumtext in re.findall(r'enum\s+(\w*?)\s*{(.*?)};', textline):
+    for enumtext in re.findall(r'enum\s+(?:class?\s+)?(\w*?)\s*(?::\s*\w*\s*)?{(.*?)};', textline):
         #print('Enum:' + enumtext[0])
 
         value = enumtext[1].replace(' ','')
