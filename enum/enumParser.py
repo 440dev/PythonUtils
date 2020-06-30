@@ -111,7 +111,7 @@ def EnumParser(textstr):
         #print('Enum:' + enumtext[0])
 
         value = enumtext[1].replace(' ','')
-        valuelist = [valuelist for valuelist in re.findall(r'(\w+)=?(\w*)([\+|\-|\*|\/])?(\w+)?,', value)]
+        valuelist = [valuelist for valuelist in re.findall(r'(\w+)=?(\w*)([\+|\-|\*|\/])?(\w+)?,?', value)]
         ret.append(Analyze(enumtext[0], valuelist))
 
     return ret
