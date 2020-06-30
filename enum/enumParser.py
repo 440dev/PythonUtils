@@ -6,7 +6,7 @@ sample = """
 enum ENUM_EXE_01{
     EXE_YOUSO_01_01 = 0,
     EXE_YOUSO_01_02 = 5,
-    EXE_YOUSO_01_03,
+    EXE_YOUSO_01_03 = (1+3),
     EXE_YOUSO_01_04, /* Comment In */
     EXE_YOUSO_01_05, // Comment In
     EXE_YOUSO_01_06 = 10, /* Comment In */ // CommentIn
@@ -21,11 +21,12 @@ enum ENUM_EXE_02{
         enum ENUM_EXE_03{EXE_YOUSO_03_01=0,EXE_YOUSO_03_02,};
 
 enum class ENUM_EXE_04 : uint32_t{
-    ENUM_EXE_04_01,
+    ENUM_EXE_04_01=(2*100),
 #if defined(XXXX) // comment
     ENUM_EXE_04_02 =5,
 #endif /* Comment */
-    ENUM_EXE_04_03=ENUM_EXE_04_01+1
+    ENUM_EXE_04_03=ENUM_EXE_04_01+1,
+    ENUM_EXE_04_01=2/ENUM_EXE_04_02
 };
 enum class ENUM_EXE_05:uint32_t {
     ENUM_EXE_05_01,
@@ -90,6 +91,18 @@ def Analyze(enumtext, valuelist):
                 else:
                     found=next((t for t in values if t.name==value[3]) ,None)
                     valueins.value -= found.value
+            if value[2] == '*':
+                if value[3].isdecimal():
+                    valueins.value *= int(value[3])
+                else:
+                    found=next((t for t in values if t.name==value[3]) ,None)
+                    valueins.value *= found.value
+            if value[2] == '/':
+                if value[3].isdecimal():
+                    valueins.value /= int(value[3])
+                else:
+                    found=next((t for t in values if t.name==value[3]) ,None)
+                    valueins.value /= found.value
         else:
             # 一つ目が文字列
             # valuesから検索
@@ -108,6 +121,18 @@ def Analyze(enumtext, valuelist):
                 else:
                     found=next((t for t in values if t.name==value[3]) ,None)
                     valueins.value -= found.value
+            if value[2] == '*':
+                if value[3].isdecimal():
+                    valueins.value *= int(value[3])
+                else:
+                    found=next((t for t in values if t.name==value[3]) ,None)
+                    valueins.value *= found.value
+            if value[2] == '/':
+                if value[3].isdecimal():
+                    valueins.value /= int(value[3])
+                else:
+                    found=next((t for t in values if t.name==value[3]) ,None)
+                    valueins.value /= found.value
         prev = valueins.value
         values.append(valueins)
         enumins.values.append(valueins)
@@ -128,7 +153,7 @@ def EnumParser(textstr):
         #print('Enum:' + enumtext[0])
 
         value = enumtext[1].replace(' ','')
-        valuelist = [valuelist for valuelist in re.findall(r'(\w+)=?(\w*)([\+|\-|\*|\/])?(\w+)?,?', value)]
+        valuelist = [valuelist for valuelist in re.findall(r'(\w+)=?\(?(\w*)([\+|\-|\*|\/])?(\w+)?\)?,?', value)]
         ret.append(Analyze(enumtext[0], valuelist))
 
     return ret
