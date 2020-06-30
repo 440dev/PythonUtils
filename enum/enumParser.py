@@ -5,8 +5,8 @@ sample = """
 // Enum Example1
 enum ENUM_EXE_01{
     EXE_YOUSO_01_01 = 0,
-    EXE_YOUSO_01_02 = ENUM_EXE_01::EXE_YOUSO_01_01,
-    EXE_YOUSO_01_03 = (1+3),
+    EXE_YOUSO_01_02 = (1+3),
+    EXE_YOUSO_01_03 = ENUM_EXE_01::EXE_YOUSO_01_01,
     #if 0
     EXE_YOUSO_01_04, /* Comment In */
     #elif 1
@@ -17,6 +17,8 @@ enum ENUM_EXE_01{
     EXE_YOUSO_01_08 = EXE_YOUSO_01_07 + 1, /* Comment In */ // CommentIn
     EXE_YOUSO_01_09 = EXE_YOUSO_01_07 - 10, /* Comment In */ /* CommentIn
 */    EXE_YOUSO_01_10 = EXE_YOUSO_01_07 + ENUM_EXE_01::EXE_YOUSO_01_08, /* Comment In */ // CommentIn
+    EXE_YOUSO_01_11 = 10 + 15 + 25 + 35,
+    EXE_YOUSO_01_12 = EXE_YOUSO_01_11 + 15 + ENUM_EXE_01::EXE_YOUSO_01_08 + 35,
 };
 void testfunction(enum ENUM_ERROR_CHECK e);
 enum ENUM_EXE_02{
@@ -50,6 +52,7 @@ int main(void){
 """
 
 enums = []
+# 定義検索用
 values = []
 
 class Values:
@@ -68,95 +71,52 @@ class Enum:
         return ret
 
 def Analyze(enumtext, valuelist):
-    # TODO
-    # 煩雑、4桁が限界で行っている。おそらく再起を使って二メモリずつ進めればいくらでも可能
-    # 現在四則演算は+-のみ、*/は非対応
-    prev = 0
     enumins = Enum(enumtext)
-    for value in valuelist:
-        valueins = Values(value[0])
-        if value[1] == '':
-            # 一つ目が空なら此処で終わり
-            valueins.value = prev + 1
-            prev = valueins.value
-        elif value[1].isdecimal():
-            # 一つ目が数値 さらに先まで見る
-            valueins.value = int(value[1])
-            if value[2] == '+':
-                if value[3].isdecimal():
-                    valueins.value += int(value[3])
-                else:
-                    found=next((t for t in values if t.name==re.sub(r'\w+::',"",value[3])) ,None)
-                    valueins.value += found.value
-            if value[2] == '-':
-                if value[3].isdecimal():
-                    valueins.value -= int(value[3])
-                else:
-                    found=next((t for t in values if t.name==re.sub(r'\w+::',"",value[3])) ,None)
-                    valueins.value -= found.value
-            if value[2] == '*':
-                if value[3].isdecimal():
-                    valueins.value *= int(value[3])
-                else:
-                    found=next((t for t in values if t.name==re.sub(r'\w+::',"",value[3])) ,None)
-                    valueins.value *= found.value
-            if value[2] == '/':
-                if value[3].isdecimal():
-                    valueins.value /= int(value[3])
-                else:
-                    found=next((t for t in values if t.name==re.sub(r'\w+::',"",value[3])) ,None)
-                    valueins.value /= found.value
+    prev = 0
+    for valuecomp in valuelist:
+        valueins = Values(valuecomp[0])
+        # XXX::YYY -> YYYを取得
+        valueins.value = re.sub(r'\w+::',"",valuecomp[1])
+        if valueins.value.isnumeric():
+            # ただの数字
+            prev = int(valueins.value)
+        elif valueins.value == '':
+            # 空白
+            prev += 1
+            valueins.value = str(prev)
         else:
-            # 一つ目が文字列
-            # valuesから検索
-            found=next((t for t in values if t.name==re.sub(r'\w+::',"",value[1])) ,None)
-            if found:
-                valueins.value = found.value
-            if value[2] == '+':
-                if value[3].isdecimal():
-                    valueins.value += int(value[3])
-                else:
-                    found=next((t for t in values if t.name==re.sub(r'\w+::',"",value[3])) ,None)
-                    valueins.value += found.value
-            if value[2] == '-':
-                if value[3].isdecimal():
-                    valueins.value -= int(value[3])
-                else:
-                    found=next((t for t in values if t.name==re.sub(r'\w+::',"",value[3])) ,None)
-                    valueins.value -= found.value
-            if value[2] == '*':
-                if value[3].isdecimal():
-                    valueins.value *= int(value[3])
-                else:
-                    found=next((t for t in values if t.name==re.sub(r'\w+::',"",value[3])) ,None)
-                    valueins.value *= found.value
-            if value[2] == '/':
-                if value[3].isdecimal():
-                    valueins.value /= int(value[3])
-                else:
-                    found=next((t for t in values if t.name==re.sub(r'\w+::',"",value[3])) ,None)
-                    valueins.value /= found.value
-        prev = valueins.value
+            # 此処だけ厄介
+            # evalでエラーが起きたら変数が含まれているので、evalがエラーとならないまで置き換え続ける
+            # Fail safeとして100回の変数置き換えまで
+            i = 0
+            while i < 100:
+                try:
+                    prev = eval(valueins.value)
+                    valueins.value = str(prev)
+                    break
+                except:
+                    found=next((t for t in values if t.name in valueins.value) ,None)
+                    if found is not None:
+                        valueins.value = valueins.value.replace(found.name, found.value)
+                i += 1
         values.append(valueins)
         enumins.values.append(valueins)
-
-    #print(str(enumins))
     return enumins
 
 def EnumParser(textstr):
     textlist = textstr.splitlines()
 
     # 余分なものを削ぎ落とす
-    # 空白 /* */ or // or /* or */の周りで実体のコードに影響を与えない箇所を消す
+    # 空白 /* */ or // or /* or */ ifdefなどの周りで実体のコードに影響を与えない箇所を消す
     textlist = [re.sub(r'(\/\*.+?\*\/|\/\/.+|\#ifdef.+|\#ifndef.+|\#if.+|\#elif.+|\#endif|\#if\s+defined.+|\/\*.+|^(\/\*)\*\/)', '', text) for text in textlist]
     textline = ''.join([text for text in textlist if text !=''])
     ret = []
-
     for enumtext in re.findall(r'enum\s+(?:class?\s+)?(\w*?)\s*(?::\s*\w*\s*)?{(.*?)};', textline):
         #print('Enum:' + enumtext[0])
 
         value = enumtext[1].replace(' ','')
-        valuelist = [valuelist for valuelist in re.findall(r'(\w+)=?\(?(?:\w+::)?(\w*)([\+|\-|\*|\/])?(?:\w+::)?(\w+)?\)?,?', value)]
+        # 手前は文字列で確定 = 数値 or 文字列の四則演算しかないはず
+        valuelist = [valuelist for valuelist in re.findall(r'(\w+)=?((?:\w|:|\(|\)|\+|\-|\*|\/)*)(?:,|$)', value)]
         ret.append(Analyze(enumtext[0], valuelist))
 
     return ret
