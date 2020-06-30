@@ -7,8 +7,11 @@ enum ENUM_EXE_01{
     EXE_YOUSO_01_01 = 0,
     EXE_YOUSO_01_02 = ENUM_EXE_01::EXE_YOUSO_01_01,
     EXE_YOUSO_01_03 = (1+3),
+    #if 0
     EXE_YOUSO_01_04, /* Comment In */
+    #elif 1
     EXE_YOUSO_01_05, // Comment In
+    #endif
     EXE_YOUSO_01_06 = 10, /* Comment In */ // CommentIn
     EXE_YOUSO_01_07 = 3, /* Comment In */ // CommentIn
     EXE_YOUSO_01_08 = EXE_YOUSO_01_07 + 1, /* Comment In */ // CommentIn
@@ -145,7 +148,7 @@ def EnumParser(textstr):
 
     # 余分なものを削ぎ落とす
     # 空白 /* */ or // or /* or */の周りで実体のコードに影響を与えない箇所を消す
-    textlist = [re.sub(r'(\/\*.+?\*\/|\/\/.+|\#ifdef.+|\#endif.+|\#if\s+defined.+|\/\*.+|^(\/\*)\*\/)', '', text) for text in textlist]
+    textlist = [re.sub(r'(\/\*.+?\*\/|\/\/.+|\#ifdef.+|\#ifndef.+|\#if.+|\#elif.+|\#endif|\#if\s+defined.+|\/\*.+|^(\/\*)\*\/)', '', text) for text in textlist]
     textline = ''.join([text for text in textlist if text !=''])
     ret = []
 
