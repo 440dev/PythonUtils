@@ -72,7 +72,7 @@ class Enum:
 
 def Analyze(enumtext, valuelist):
     enumins = Enum(enumtext)
-    prev = 0
+    prev = -1
     for valuecomp in valuelist:
         valueins = Values(valuecomp[0])
         # XXX::YYY -> YYYを取得
